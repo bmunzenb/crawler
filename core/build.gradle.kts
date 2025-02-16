@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     api(libs.okio)
+    api(libs.jsoup)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

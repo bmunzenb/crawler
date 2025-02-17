@@ -1,7 +1,7 @@
 package com.munzenberger.crawler.core.processor
 
 import com.munzenberger.crawler.core.CrawlerStatus
-import com.munzenberger.crawler.core.ProcessedRegistry
+import com.munzenberger.crawler.core.ReadOnlyProcessedRegistry
 import com.munzenberger.crawler.core.ReadOnlyURLQueue
 import com.munzenberger.crawler.core.URLFilter
 import com.munzenberger.crawler.core.URLQueueEntry
@@ -16,7 +16,7 @@ class LinkProcessor : URLProcessor {
         entry: URLQueueEntry,
         filter: URLFilter,
         queue: ReadOnlyURLQueue,
-        registry: ProcessedRegistry,
+        registry: ReadOnlyProcessedRegistry,
         callback: Consumer<CrawlerStatus>,
     ): Collection<URLQueueEntry> {
         val connection = URI.create(entry.url).toURL().openConnection()
@@ -35,7 +35,6 @@ class LinkProcessor : URLProcessor {
                     )
             }
 
-        registry.add(entry.url)
         return results
     }
 
@@ -44,7 +43,7 @@ class LinkProcessor : URLProcessor {
         inStream: InputStream,
         filter: URLFilter,
         queue: ReadOnlyURLQueue,
-        registry: ProcessedRegistry,
+        registry: ReadOnlyProcessedRegistry,
     ): Collection<URLQueueEntry> {
         val doc = Jsoup.parse(inStream, "UTF-8", url)
 

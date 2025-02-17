@@ -31,6 +31,7 @@ class Crawler(
             } catch (e: Exception) {
                 callback.accept(CrawlerStatus.Error(e))
             } finally {
+                registry.add(entry.url)
                 callback.accept(CrawlerStatus.EndQueueEntry(entry))
             }
         }

@@ -1,7 +1,7 @@
 package com.munzenberger.crawler.core.processor
 
 import com.munzenberger.crawler.core.CrawlerStatus
-import com.munzenberger.crawler.core.ProcessedRegistry
+import com.munzenberger.crawler.core.ReadOnlyProcessedRegistry
 import com.munzenberger.crawler.core.ReadOnlyURLQueue
 import com.munzenberger.crawler.core.URLFilter
 import com.munzenberger.crawler.core.URLQueueEntry
@@ -21,7 +21,7 @@ class DownloadProcessor(
         entry: URLQueueEntry,
         filter: URLFilter,
         queue: ReadOnlyURLQueue,
-        registry: ProcessedRegistry,
+        registry: ReadOnlyProcessedRegistry,
         callback: Consumer<CrawlerStatus>,
     ): Collection<URLQueueEntry> {
         val output = outFactory.open(entry.url, entry.referer)
@@ -30,7 +30,6 @@ class DownloadProcessor(
         val bytes = transfer(entry.url, output.stream)
         callback.accept(CrawlerStatus.EndDownload(bytes))
 
-        registry.add(entry.url)
         return emptyList()
     }
 

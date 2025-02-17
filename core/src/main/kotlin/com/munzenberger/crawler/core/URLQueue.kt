@@ -6,16 +6,14 @@ data class URLQueueEntry(
     val referer: String,
 )
 
-interface ReadOnlyURLQueue {
+interface URLQueue {
     val size: Int
 
     val isEmpty: Boolean
         get() = size == 0
 
     fun contains(url: String): Boolean
-}
 
-interface URLQueue : ReadOnlyURLQueue {
     fun add(entry: URLQueueEntry)
 
     fun addAll(entries: Collection<URLQueueEntry>) {

@@ -23,7 +23,13 @@ class Crawler(
             val entry = queue.pop()
             callback.accept(CrawlerStatus.StartQueueEntry(entry))
             try {
-                val results = processor.process(entry, filter, queue, registry, callback)
+                val results =
+                    processor
+                        .process(entry, callback)
+                        .filter { !queue.contains(it.url) }
+                        .filter { !registry.contains(it.url) }
+                        .filter { filter.test(it.type, it.url) }
+
                 if (results.isNotEmpty()) {
                     queue.addAll(results)
                     callback.accept(CrawlerStatus.AddToQueue(results))

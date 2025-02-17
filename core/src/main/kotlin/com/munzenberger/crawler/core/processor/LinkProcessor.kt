@@ -1,9 +1,6 @@
 package com.munzenberger.crawler.core.processor
 
 import com.munzenberger.crawler.core.CrawlerStatus
-import com.munzenberger.crawler.core.ReadOnlyProcessedRegistry
-import com.munzenberger.crawler.core.ReadOnlyURLQueue
-import com.munzenberger.crawler.core.URLFilter
 import com.munzenberger.crawler.core.URLQueueEntry
 import com.munzenberger.crawler.core.URLType
 import org.jsoup.Jsoup
@@ -14,9 +11,6 @@ import java.util.function.Consumer
 class LinkProcessor : URLProcessor {
     override fun process(
         entry: URLQueueEntry,
-        filter: URLFilter,
-        queue: ReadOnlyURLQueue,
-        registry: ReadOnlyProcessedRegistry,
         callback: Consumer<CrawlerStatus>,
     ): Collection<URLQueueEntry> {
         val connection = URI.create(entry.url).toURL().openConnection()
@@ -29,9 +23,6 @@ class LinkProcessor : URLProcessor {
                     processAsLink(
                         entry.url,
                         connection.getInputStream(),
-                        filter,
-                        queue,
-                        registry,
                     )
             }
 
@@ -41,9 +32,6 @@ class LinkProcessor : URLProcessor {
     private fun processAsLink(
         url: String,
         inStream: InputStream,
-        filter: URLFilter,
-        queue: ReadOnlyURLQueue,
-        registry: ReadOnlyProcessedRegistry,
     ): Collection<URLQueueEntry> {
         val doc = Jsoup.parse(inStream, "UTF-8", url)
 
@@ -51,9 +39,6 @@ class LinkProcessor : URLProcessor {
             doc
                 .stream()
                 .map { it.attr("abs:img") }
-                .filter { filter.test(URLType.Image, it) }
-                .filter { !queue.contains(it) }
-                .filter { !registry.contains(it) }
                 .distinct()
                 .map { URLQueueEntry(URLType.Image, it, url) }
                 .toList()
@@ -63,9 +48,6 @@ class LinkProcessor : URLProcessor {
                 .stream()
                 .filter { !it.attr("href").startsWith("#") }
                 .map { it.attr("abs:href") }
-                .filter { filter.test(URLType.Link, it) }
-                .filter { !queue.contains(it) }
-                .filter { !registry.contains(it) }
                 .distinct()
                 .map { URLQueueEntry(URLType.Link, it, url) }
                 .toList()

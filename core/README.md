@@ -18,18 +18,18 @@ action.
 
 The following `URLType`s are supported:
 
-| `URLType` | Description                                                 |
-|-----------|-------------------------------------------------------------|
-| `Link`    | Represents the target of an anchor tag in an HTML document. |
-| `Image`   | Represents the target of an image tag in an HTML document.  |
+| `URLType` | Description                                      |
+|-----------|--------------------------------------------------|
+| `Link`    | Target URL of an anchor tag in an HTML document. |
+| `Image`   | Target URL of an image tag in an HTML document.  |
 
 You can create your own implementation of `URLProcessor` from the interface, or you can use one of the
 provided top-level implementations:
 
-| `URLProcessor`          | Description                                                                                                                                                                                                                                                                     |
-|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `DefaultURLProcessor`   | As its name implies, this is the default processor that parses links as HTML and downloads images. You will need to supply an `OutputStreamFactory` to the constructor that defines where to write downloaded images to.                                                        |
-| `TypeBasedURLProcessor` | This is a more generic processor that delegates to type-specific processors.  Once created, call the `register(type, processor)` function to register a processor for each URL type.  Note that only the most recently registered processor will be executed for each URL type. |
+| `URLProcessor`            | Description                                                                                                                                                                                                                                                                     |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `DownloadImagesProcessor` | Download any images from HTML image tags or links encountered during the crawl. To use this processor, you must specify a `DownloadWriterFactory` that is responsible for writing the downloaded image content.                                                                 |
+| `TypeBasedURLProcessor`   | This is a more generic processor that delegates to type-specific processors.  Once created, call the `register(type, processor)` function to register a processor for each URL type.  Note that only the most recently registered processor will be executed for each URL type. |
 
 ### Step 2: Create a `URLFilter`
 
@@ -37,7 +37,8 @@ The `URLFilter` is called on every URL the crawler encounters to determine wheth
 instance should inspect the incoming URL, and optionally its `URLType`, and return `true` if the URL is eligible for
 processing.
 
-*Note: Avoid returning `true` for all URLs of type `Link` as doing so may result in a crawl that never ends.*
+*Note: Avoid overly permissive filters as this might result in crawling unintended URLs and/or very long execution
+time.*
 
 ### Step 3: Create the `Crawler` and call `execute(url)`
 
@@ -48,20 +49,19 @@ call the `execute(url)` function. The URL passed into `execute` should be the en
 
 In this example, we start crawling at `http://www.example.com/index.html`, following every link and downloading
 every image encountered as long as the link or image URL starts with `http://www.example.com/`. The images are saved
-to `/home/images` in a directory structure matching the URL path.
+to `/home/images`.
 
 ```kotlin
-val processor = DefaultURLProcessor(
-    FileOutputStreamFactory(Path.of("/home/images"))
+val processor = DownloadImagesProcessor(
+    writerFactory = FileDownloadWriterFactory(targetDir = Path.of("/home/images"))
 )
 
-val filter =
-    URLFilter { type, url ->
-        url.startsWith("https://www.example.com/")
-    }
+val filter = URLFilter { type, url ->
+    url.startsWith("http://www.example.com/")
+}
 
 Crawler(
     processor = processor,
-    filter = filter,
+    filter = filter
 ).execute("http://www.example.com/index.html")
 ```

@@ -1,10 +1,8 @@
 package com.munzenberger.crawler.core
 
-interface ReadOnlyProcessedRegistry {
+interface ProcessedRegistry {
     fun contains(url: String): Boolean
-}
 
-interface ProcessedRegistry : ReadOnlyProcessedRegistry {
     fun add(url: String)
 
     companion object {

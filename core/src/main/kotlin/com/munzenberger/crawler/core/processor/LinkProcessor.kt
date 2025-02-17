@@ -12,8 +12,13 @@ class LinkProcessor : URLProcessor {
     override fun process(
         entry: URLQueueEntry,
         callback: Consumer<CrawlerStatus>,
+        userAgent: String?,
     ): Collection<URLQueueEntry> {
-        val connection = URI.create(entry.url).toURL().openConnection()
+        val connection =
+            URI.create(entry.url).toURL().openConnection().apply {
+                userAgent?.run { setRequestProperty("User-Agent", this) }
+            }
+
         val contentType = connection.contentType
         val results =
             when {

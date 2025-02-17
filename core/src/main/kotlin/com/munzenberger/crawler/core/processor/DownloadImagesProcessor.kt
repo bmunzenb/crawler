@@ -17,5 +17,6 @@ class DownloadImagesProcessor(
     override fun process(
         entry: URLQueueEntry,
         callback: Consumer<CrawlerStatus>,
-    ): Collection<URLQueueEntry> = processor.process(entry, callback)
+        userAgent: String?,
+    ): Collection<URLQueueEntry> = processor.process(entry, callback, userAgent)
 }

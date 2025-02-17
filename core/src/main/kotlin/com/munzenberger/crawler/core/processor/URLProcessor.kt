@@ -8,5 +8,6 @@ fun interface URLProcessor {
     fun process(
         entry: URLQueueEntry,
         callback: Consumer<CrawlerStatus>,
+        userAgent: String?,
     ): Collection<URLQueueEntry>
 }

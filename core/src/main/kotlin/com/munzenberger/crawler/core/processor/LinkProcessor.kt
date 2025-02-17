@@ -42,14 +42,16 @@ class LinkProcessor : URLProcessor {
 
         val images =
             doc
+                .getElementsByTag("img")
                 .stream()
-                .map { it.attr("abs:img") }
+                .map { it.attr("abs:src") }
                 .distinct()
                 .map { URLQueueEntry(URLType.Image, it, url) }
                 .toList()
 
         val links =
             doc
+                .getElementsByTag("a")
                 .stream()
                 .filter { !it.attr("href").startsWith("#") }
                 .map { it.attr("abs:href") }

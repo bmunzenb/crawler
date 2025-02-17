@@ -6,8 +6,8 @@ import java.util.function.Consumer
 class Crawler(
     private val processor: URLProcessor,
     private val filter: URLFilter,
-    private val queue: URLQueue = ListURLQueue(),
-    private val registry: ProcessedRegistry = SetProcessedRegistry(),
+    private val queue: URLQueue = URLQueue.default(),
+    private val registry: ProcessedRegistry = ProcessedRegistry.default(),
     private val callback: Consumer<CrawlerStatus> = LoggingCrawlerStatusConsumer(),
 ) {
     fun execute(url: String) {

@@ -23,6 +23,10 @@ interface URLQueue : ReadOnlyURLQueue {
     }
 
     fun pop(): URLQueueEntry
+
+    companion object {
+        fun default() = ListURLQueue()
+    }
 }
 
 class ListURLQueue(

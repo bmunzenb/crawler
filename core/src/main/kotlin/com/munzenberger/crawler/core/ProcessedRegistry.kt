@@ -4,6 +4,10 @@ interface ProcessedRegistry {
     fun add(url: String)
 
     fun contains(url: String): Boolean
+
+    companion object {
+        fun default() = SetProcessedRegistry()
+    }
 }
 
 class SetProcessedRegistry(

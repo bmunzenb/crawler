@@ -1,10 +1,12 @@
 # Crawler Core
 
-This is the core library for the crawler.
+This is the core library for the crawler.  At its most basic, the crawler executes arbitrary logic on a queue of URLs.
+The library includes basic processors for parsing HTML pages for anchor and image tags (using
+[Jsoup](https://jsoup.org/)), and downloading content.
 
-## User Guide
+## Quick Start
 
-To use the crawler, follow these simple steps:
+To use the crawler, follow these steps:
 
 1. Create a `URLProcessor` that defines what should happen for each URL crawled.
 2. Create a `URLFilter` that defines which URLs should be crawled.
@@ -12,24 +14,60 @@ To use the crawler, follow these simple steps:
 
 ### Step 1: Create a `URLProcessor`
 
-The `URLProcessor` is called for every URL that is crawled.  Generally, you will want to handle each
-`URLType` uniquely, whether that be parsing it as HTML, downloading it as a binary file, or some other
-action.
+The `URLProcessor` defines the logic that should execute for every URL crawled. It accepts a URL as input and returns
+a collection of URLs that could be added to the crawler queue.
 
-The following `URLType`s are supported:
+There are two top-level `URLProcessor` implementations included:
+
+#### `DownloadImagesProcessor`
+
+Use this processor to download all images.
+
+To create an instance of this processor, you will need to specify a `DownloadWriterFactory` in its constructor. This
+class is responsible for creating `DownloadWriter`s for each image to download. Included in the library is a
+`FileDownloadWriterFactory` that can be used to write image content to the filesystem.
+
+In this example, we create a `DownloadImagesProcessor` that will write downloaded images to the `/user/images`
+directory:
+
+```kotlin
+val processor = DownloadImagesProcessor(
+    writerFactory = FileDownloadWriterFactory(
+        targetDir = Path.of("/user/images"),
+        withUrlPath = true // when true, creates a directory structure that matches the URL path
+    )
+)
+```
+
+#### `TypeBasedURLProcessor`
+
+This is a generic processor that allows you to specify which processor should execute based on the URL type. Supported
+types are:
 
 | `URLType` | Description                                      |
 |-----------|--------------------------------------------------|
 | `Link`    | Target URL of an anchor tag in an HTML document. |
 | `Image`   | Target URL of an image tag in an HTML document.  |
 
-You can create your own implementation of `URLProcessor` from the interface, or you can use one of the
-provided top-level implementations:
+After creating the instance, call the `register(type, processor)` function to specify the processor that should execute
+for each URL type. Note that only the last registered processor for a URL type will be executed.
 
-| `URLProcessor`            | Description                                                                                                                                                                                                                                                                     |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `DownloadImagesProcessor` | Download any images from HTML image tags or links encountered during the crawl. To use this processor, you must specify a `DownloadWriterFactory` that is responsible for writing the downloaded image content.                                                                 |
-| `TypeBasedURLProcessor`   | This is a more generic processor that delegates to type-specific processors.  Once created, call the `register(type, processor)` function to register a processor for each URL type.  Note that only the most recently registered processor will be executed for each URL type. |
+In this example, we create a `TypeBasedURLProcessor` that follows links and downloads images. This is functionally
+equivalent to the `DownloadImagesProcessor` as described above:
+
+```kotlin
+val processor = TypeBasedURLProcessor().apply {
+    register(URLType.Link, LinkProcessor()) // follow URLs specified in anchor and image tags
+    register(
+        URLType.Image, DownloadProcessor(
+            writerFactory = FileDownloadWriterFactory(
+                targetDir = Path.of("/user/images"),
+                withUrlPath = true
+            )
+        )
+    )
+}
+```
 
 ### Step 2: Create a `URLFilter`
 
@@ -37,26 +75,35 @@ The `URLFilter` is called on every URL the crawler encounters to determine wheth
 instance should inspect the incoming URL, and optionally its `URLType`, and return `true` if the URL is eligible for
 processing.
 
-*Note: Avoid overly permissive filters as this might result in crawling unintended URLs and/or very long execution
-time.*
+In this example, we create a filter that follows all links whose URLs start with `http://www.example.com/` and downloads
+all images whose URLs start with `http://images.example.com/`:
+
+```kotlin
+val filter = URLFilter { type, url ->
+    when (type) {
+        URLType.Link -> url.startsWith("http://www.example.com/")
+        URLType.Image -> url.startsWith("http://images.example.com/")
+    }
+}
+```
+
+*Note: An overly permissive filter can result in crawling unintended URLs and/or very long crawling time.*
 
 ### Step 3: Create the `Crawler` and call `execute(url)`
 
 Finally, create an instance of `Crawler` passing the `URLProcessor` and `URLFilter` into the constructor, and
 call the `execute(url)` function. The URL passed into `execute` should be the entry point for the crawler.
 
-#### Example
-
 In this example, we start crawling at `http://www.example.com/index.html`, following every link and downloading
 every image encountered as long as the link or image URL starts with `http://www.example.com/`. The images are saved
-to `/home/images`.
+to `/user/images`.
 
 ```kotlin
 val processor = DownloadImagesProcessor(
-    writerFactory = FileDownloadWriterFactory(targetDir = Path.of("/home/images"))
+    writerFactory = FileDownloadWriterFactory(targetDir = Path.of("/user/images"))
 )
 
-val filter = URLFilter { type, url ->
+val filter = URLFilter { _, url ->
     url.startsWith("http://www.example.com/")
 }
 
@@ -65,3 +112,21 @@ Crawler(
     filter = filter
 ).execute("http://www.example.com/index.html")
 ```
+
+#### Custom User-Agent Header
+
+To manually specify the value to use in the `User-Agent` header, pass it into the `Crawler`'s `userAgent` parameter in
+the constructor:
+
+```kotlin
+Crawler(
+    processor = processor,
+    filter = filter,
+    userAgent = "Custom/1.0 (Custom user agent)"
+).execute("http://www.example.com/index.html")
+```
+
+## Advanced Use
+
+This section will include information about additional included processors, and the `Crawler` optional constructor
+parameters for `URLQueue`, `ProcessedRegistry`, and `Consumer<CrawlerStatus>`.

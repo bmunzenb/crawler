@@ -17,7 +17,7 @@ class Crawler(
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun executeQueue() {
+    fun executeQueue() {
         callback.accept(CrawlerStatus.StartQueue(queue.size))
 
         while (!queue.isEmpty) {

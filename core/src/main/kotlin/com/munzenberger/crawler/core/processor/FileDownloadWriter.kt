@@ -10,8 +10,12 @@ import java.nio.file.StandardOpenOption
 
 class FileDownloadWriter(
     private val path: Path,
-    private val bufferSize: Int = 8192,
+    private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
 ) : DownloadWriter {
+    companion object {
+        const val DEFAULT_BUFFER_SIZE = 8192
+    }
+
     override val name = path.toString()
 
     override fun write(inStream: InputStream): Long {

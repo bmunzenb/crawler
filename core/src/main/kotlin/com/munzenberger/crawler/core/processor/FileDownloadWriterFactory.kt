@@ -6,6 +6,7 @@ import java.nio.file.Path
 class FileDownloadWriterFactory(
     private val targetDir: Path,
     private val withUrlPath: Boolean = false,
+    private val bufferSize: Int = FileDownloadWriter.DEFAULT_BUFFER_SIZE,
 ) : DownloadWriterFactory {
     override fun create(
         url: String,
@@ -26,6 +27,6 @@ class FileDownloadWriterFactory(
                 targetDir.resolve(parts.last())
             }
 
-        return FileDownloadWriter(path)
+        return FileDownloadWriter(path, bufferSize)
     }
 }

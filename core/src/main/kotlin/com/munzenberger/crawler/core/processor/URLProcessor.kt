@@ -1,13 +1,13 @@
 package com.munzenberger.crawler.core.processor
 
-import com.munzenberger.crawler.core.CrawlerStatus
+import com.munzenberger.crawler.core.CrawlerEvent
 import com.munzenberger.crawler.core.URLQueueEntry
 import java.util.function.Consumer
 
 fun interface URLProcessor {
     fun process(
         entry: URLQueueEntry,
-        callback: Consumer<CrawlerStatus>,
+        callback: Consumer<CrawlerEvent>,
         userAgent: String?,
     ): Collection<URLQueueEntry>
 }

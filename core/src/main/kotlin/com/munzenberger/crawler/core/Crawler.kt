@@ -8,7 +8,7 @@ class Crawler(
     private val filter: URLFilter,
     private val queue: URLQueue = URLQueue.default(),
     private val registry: ProcessedRegistry = ProcessedRegistry.default(),
-    private val callback: Consumer<CrawlerStatus> = LoggingCrawlerStatusConsumer(),
+    private val callback: Consumer<CrawlerEvent> = LoggingCrawlerEventConsumer(),
     private val userAgent: String? = null,
 ) {
     fun execute(url: String) {
@@ -18,11 +18,11 @@ class Crawler(
 
     @Suppress("TooGenericExceptionCaught")
     fun executeQueue() {
-        callback.accept(CrawlerStatus.StartQueue(queue.size))
+        callback.accept(CrawlerEvent.StartQueue(queue.size))
 
         while (!queue.isEmpty) {
             val entry = queue.pop()
-            callback.accept(CrawlerStatus.StartQueueEntry(entry))
+            callback.accept(CrawlerEvent.StartQueueEntry(entry))
             try {
                 val results =
                     processor
@@ -33,16 +33,16 @@ class Crawler(
 
                 if (results.isNotEmpty()) {
                     queue.addAll(results)
-                    callback.accept(CrawlerStatus.AddToQueue(results))
+                    callback.accept(CrawlerEvent.AddToQueue(results))
                 }
             } catch (e: Exception) {
-                callback.accept(CrawlerStatus.Error(e))
+                callback.accept(CrawlerEvent.Error(e))
             } finally {
                 registry.add(entry.url)
-                callback.accept(CrawlerStatus.EndQueueEntry(entry))
+                callback.accept(CrawlerEvent.EndQueueEntry(entry))
             }
         }
 
-        callback.accept(CrawlerStatus.EndQueue)
+        callback.accept(CrawlerEvent.EndQueue)
     }
 }

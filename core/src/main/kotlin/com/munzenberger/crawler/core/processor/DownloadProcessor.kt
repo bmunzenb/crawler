@@ -1,6 +1,6 @@
 package com.munzenberger.crawler.core.processor
 
-import com.munzenberger.crawler.core.CrawlerStatus
+import com.munzenberger.crawler.core.CrawlerEvent
 import com.munzenberger.crawler.core.URLQueueEntry
 import java.net.HttpURLConnection
 import java.net.URI
@@ -11,14 +11,14 @@ class DownloadProcessor(
 ) : URLProcessor {
     override fun process(
         entry: URLQueueEntry,
-        callback: Consumer<CrawlerStatus>,
+        callback: Consumer<CrawlerEvent>,
         userAgent: String?,
     ): Collection<URLQueueEntry> {
         val writer = writerFactory.create(entry.url, entry.referer)
 
-        callback.accept(CrawlerStatus.StartDownload(entry.url, writer.name))
+        callback.accept(CrawlerEvent.StartDownload(entry.url, writer.name))
         val bytes = transfer(entry.url, writer, userAgent)
-        callback.accept(CrawlerStatus.EndDownload(bytes))
+        callback.accept(CrawlerEvent.EndDownload(bytes))
 
         return emptyList()
     }

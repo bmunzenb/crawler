@@ -2,9 +2,9 @@ package com.munzenberger.crawler.core
 
 import java.util.Locale
 
-class LoggingCrawlerStatusConsumer(
+class LoggingCrawlerEventConsumer(
     private val locale: Locale = Locale.getDefault(),
-) : CrawlerStatusConsumer {
+) : CrawlerEventConsumer {
     // statistics
     private var queueStart: Long = 0
     private var entryCount: Int = 0

@@ -1,34 +1,34 @@
 package com.munzenberger.crawler.core
 
-sealed class CrawlerStatus {
+sealed class CrawlerEvent {
     data class StartQueue(
         val size: Int,
-    ) : CrawlerStatus()
+    ) : CrawlerEvent()
 
     data class StartQueueEntry(
         val entry: URLQueueEntry,
-    ) : CrawlerStatus()
+    ) : CrawlerEvent()
 
     data class AddToQueue(
         val entries: Collection<URLQueueEntry>,
-    ) : CrawlerStatus()
+    ) : CrawlerEvent()
 
     data class StartDownload(
         val url: String,
         val target: String,
-    ) : CrawlerStatus()
+    ) : CrawlerEvent()
 
     data class EndDownload(
         val bytes: Long,
-    ) : CrawlerStatus()
+    ) : CrawlerEvent()
 
     data class EndQueueEntry(
         val entry: URLQueueEntry,
-    ) : CrawlerStatus()
+    ) : CrawlerEvent()
 
-    data object EndQueue : CrawlerStatus()
+    data object EndQueue : CrawlerEvent()
 
     data class Error(
         val error: Exception,
-    ) : CrawlerStatus()
+    ) : CrawlerEvent()
 }

@@ -1,6 +1,6 @@
 package com.munzenberger.crawler.core.processor
 
-import com.munzenberger.crawler.core.CrawlerStatus
+import com.munzenberger.crawler.core.CrawlerEvent
 import com.munzenberger.crawler.core.URLQueueEntry
 import com.munzenberger.crawler.core.URLType
 import java.util.function.Consumer
@@ -16,7 +16,7 @@ class DownloadImagesProcessor(
 
     override fun process(
         entry: URLQueueEntry,
-        callback: Consumer<CrawlerStatus>,
+        callback: Consumer<CrawlerEvent>,
         userAgent: String?,
     ): Collection<URLQueueEntry> = processor.process(entry, callback, userAgent)
 }

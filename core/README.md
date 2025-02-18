@@ -129,4 +129,4 @@ Crawler(
 ## Advanced Use
 
 This section will include information about additional included processors, and the `Crawler` optional constructor
-parameters for `URLQueue`, `ProcessedRegistry`, and `Consumer<CrawlerStatus>`.
+parameters for `URLQueue`, `ProcessedRegistry`, and `Consumer<CrawlerEvent>`.

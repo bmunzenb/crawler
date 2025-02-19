@@ -1,6 +1,8 @@
 package com.munzenberger.crawler.core
 
 import com.munzenberger.crawler.core.processor.URLProcessor
+import java.net.HttpURLConnection
+import java.net.URI
 import java.util.function.Consumer
 
 class Crawler(
@@ -24,13 +26,7 @@ class Crawler(
             val entry = queue.pop()
             callback.accept(CrawlerEvent.StartQueueEntry(entry))
             try {
-                val results =
-                    processor
-                        .process(entry, callback, userAgent)
-                        .filter { !queue.contains(it.url) }
-                        .filter { !registry.contains(it.url) }
-                        .filter { filter.test(it.type, it.url) }
-
+                val results = executeForEntry(entry)
                 if (results.isNotEmpty()) {
                     queue.addAll(results)
                     callback.accept(CrawlerEvent.AddToQueue(results))
@@ -44,5 +40,25 @@ class Crawler(
         }
 
         callback.accept(CrawlerEvent.EndQueue)
+    }
+
+    private fun executeForEntry(entry: URLQueueEntry): Collection<URLQueueEntry> {
+        val connection =
+            URI.create(entry.url).toURL().openConnection().apply {
+                userAgent?.run { setRequestProperty("User-Agent", this) }
+            }
+
+        if (connection is HttpURLConnection) {
+            val code = connection.responseCode
+            if (code != HttpURLConnection.HTTP_OK) {
+                error("HTTP $code.")
+            }
+        }
+
+        return processor
+            .process(entry, connection, callback)
+            .filter { !queue.contains(it.url) }
+            .filter { !registry.contains(it.url) }
+            .filter { filter.test(it.type, it.url) }
     }
 }

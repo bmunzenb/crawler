@@ -2,21 +2,25 @@ package com.munzenberger.crawler.core.processor
 
 import com.munzenberger.crawler.core.CrawlerEvent
 import com.munzenberger.crawler.core.URLQueueEntry
-import com.munzenberger.crawler.core.URLType
+import java.net.URLConnection
 import java.util.function.Consumer
 
 class DownloadImagesProcessor(
     writerFactory: DownloadWriterFactory,
 ) : URLProcessor {
-    private val processor =
-        TypeBasedURLProcessor().apply {
-            register(URLType.Link, LinkProcessor())
-            register(URLType.Image, DownloadProcessor(writerFactory))
-        }
+    private val htmlProcessor = HTMLProcessor()
+    private val downloadProcessor = DownloadProcessor(writerFactory)
 
     override fun process(
         entry: URLQueueEntry,
+        connection: URLConnection,
         callback: Consumer<CrawlerEvent>,
-        userAgent: String?,
-    ): Collection<URLQueueEntry> = processor.process(entry, callback, userAgent)
+    ): Collection<URLQueueEntry> {
+        val contentType = connection.contentType
+        return when {
+            contentType?.contains("image/") == true -> downloadProcessor.process(entry, connection, callback)
+            contentType?.contains("text/html") == true -> htmlProcessor.process(entry, connection, callback)
+            else -> emptyList()
+        }
+    }
 }

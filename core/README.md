@@ -17,7 +17,7 @@ To use the crawler, follow these steps:
 The `URLProcessor` defines the logic that should execute for every URL crawled. It accepts a URL as input and returns
 a collection of URLs that could be added to the crawler queue.
 
-There are two top-level `URLProcessor` implementations included:
+You can implement your own `URLProcessor`, or use one of the included ones:
 
 #### `DownloadImagesProcessor`
 
@@ -37,36 +37,6 @@ val processor = DownloadImagesProcessor(
         withUrlPath = true // when true, creates a directory structure that matches the URL path
     )
 )
-```
-
-#### `TypeBasedURLProcessor`
-
-This is a generic processor that allows you to specify which processor should execute based on the URL type. Supported
-types are:
-
-| `URLType` | Description                                      |
-|-----------|--------------------------------------------------|
-| `Link`    | Target URL of an anchor tag in an HTML document. |
-| `Image`   | Target URL of an image tag in an HTML document.  |
-
-After creating the instance, call the `register(type, processor)` function to specify the processor that should execute
-for each URL type. Note that only the last registered processor for a URL type will be executed.
-
-In this example, we create a `TypeBasedURLProcessor` that follows links and downloads images. This is functionally
-equivalent to the `DownloadImagesProcessor` as described above:
-
-```kotlin
-val processor = TypeBasedURLProcessor().apply {
-    register(URLType.Link, LinkProcessor()) // follow URLs specified in anchor and image tags
-    register(
-        URLType.Image, DownloadProcessor(
-            writerFactory = FileDownloadWriterFactory(
-                targetDir = Path.of("/user/images"),
-                withUrlPath = true
-            )
-        )
-    )
-}
 ```
 
 ### Step 2: Create a `URLFilter`

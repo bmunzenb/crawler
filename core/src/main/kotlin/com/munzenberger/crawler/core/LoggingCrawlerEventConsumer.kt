@@ -55,8 +55,17 @@ class LoggingCrawlerEventConsumer(
         val msg =
             String.format(
                 locale,
-                "Added to queue: %s",
-                groups,
+                "Added %,d %s to queue: %s",
+                entries.size,
+                "URL".plural(entries.size),
+                groups.entries.joinToString {
+                    String.format(
+                        locale,
+                        "%,d %s",
+                        it.value,
+                        it.key.name.plural(it.value),
+                    )
+                },
             )
         println(msg)
     }

@@ -45,14 +45,21 @@ The `Predicate<URLQueueEntry>` is called on every URL the crawler encounters to 
 processed. An instance should inspect the incoming URL, and optionally its `URLType`, and return `true` if the URL is
 eligible for processing.
 
-In this example, we create a filter that follows all links whose URLs start with `http://www.example.com/` and downloads
-all images whose URLs start with `http://images.example.com/`:
+The `URLType` denotes the source of URL that was added to the queue:
+
+| `URLType` | Description                    |
+|-----------|--------------------------------|
+| `Link`    | URL is from an HTML anchor tag |
+| `Image`   | URL is from an HTML image tag  |
+
+In this example, we create a filter that follows all links whose URLs start with `http://www.example.com/` and ignores
+all images:
 
 ```kotlin
 val filter = Predicate<URLQueueEntry> { (type, url, referer) ->
     when (type) {
         URLType.Link -> url.startsWith("http://www.example.com/")
-        URLType.Image -> url.startsWith("http://images.example.com/")
+        URLType.Image -> false
     }
 }
 ```

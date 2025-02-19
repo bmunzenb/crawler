@@ -9,7 +9,7 @@ interface DownloadWriter {
 }
 
 fun interface DownloadWriterFactory {
-    fun create(
+    fun newWriter(
         url: String,
         referer: String,
     ): DownloadWriter

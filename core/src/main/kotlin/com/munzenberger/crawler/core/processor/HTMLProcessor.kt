@@ -13,7 +13,7 @@ class HTMLProcessor : URLProcessor {
         connection: URLConnection,
         callback: Consumer<CrawlerEvent>,
     ): Collection<URLQueueEntry> {
-        val doc = Jsoup.parse(connection.getInputStream(), "UTF-8", entry.url)
+        val doc = Jsoup.parse(connection.getInputStream(), null, entry.url)
 
         val images =
             doc

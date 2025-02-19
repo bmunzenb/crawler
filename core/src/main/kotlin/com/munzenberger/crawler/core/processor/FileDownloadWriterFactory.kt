@@ -8,7 +8,7 @@ class FileDownloadWriterFactory(
     private val withUrlPath: Boolean = false,
     private val bufferSize: Int = FileDownloadWriter.DEFAULT_BUFFER_SIZE,
 ) : DownloadWriterFactory {
-    override fun create(
+    override fun newWriter(
         url: String,
         referer: String,
     ): DownloadWriter {

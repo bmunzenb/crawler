@@ -3,16 +3,17 @@ package com.munzenberger.crawler.core
 import java.util.function.Consumer
 
 interface CrawlerEventConsumer : Consumer<CrawlerEvent> {
-    override fun accept(status: CrawlerEvent) {
-        when (status) {
-            is CrawlerEvent.StartQueue -> onStartQueue(status.size)
-            is CrawlerEvent.StartQueueEntry -> onStartQueueEntry(status.entry)
-            is CrawlerEvent.AddToQueue -> onAddToQueue(status.entries)
-            is CrawlerEvent.StartDownload -> onStartDownload(status.url, status.target)
-            is CrawlerEvent.EndDownload -> onEndDownload(status.bytes)
-            is CrawlerEvent.EndQueueEntry -> onEndQueueEntry(status.entry)
+    override fun accept(event: CrawlerEvent) {
+        when (event) {
+            is CrawlerEvent.StartQueue -> onStartQueue(event.size)
+            is CrawlerEvent.StartQueueEntry -> onStartQueueEntry(event.entry)
+            is CrawlerEvent.AddToQueue -> onAddToQueue(event.entries)
+            is CrawlerEvent.StartDownload -> onStartDownload(event.url, event.target)
+            is CrawlerEvent.EndDownload -> onEndDownload(event.bytes)
+            is CrawlerEvent.EndQueueEntry -> onEndQueueEntry(event.entry)
             CrawlerEvent.EndQueue -> onEndQueue()
-            is CrawlerEvent.Error -> onError(status.error)
+            is CrawlerEvent.Error -> onError(event.error)
+            else -> onCrawlerEvent(event)
         }
     }
 
@@ -34,4 +35,6 @@ interface CrawlerEventConsumer : Consumer<CrawlerEvent> {
     fun onEndQueue() {}
 
     fun onError(error: Exception) {}
+
+    fun onCrawlerEvent(event: CrawlerEvent) {}
 }

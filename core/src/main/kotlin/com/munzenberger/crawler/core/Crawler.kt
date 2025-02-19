@@ -4,17 +4,21 @@ import com.munzenberger.crawler.core.processor.URLProcessor
 import java.net.HttpURLConnection
 import java.net.URI
 import java.util.function.Consumer
+import java.util.function.Predicate
 
 class Crawler(
     private val processor: URLProcessor,
-    private val filter: URLFilter,
+    private val filter: Predicate<URLQueueEntry>,
     private val queue: URLQueue = URLQueue.default(),
     private val registry: ProcessedRegistry = ProcessedRegistry.default(),
     private val callback: Consumer<CrawlerEvent> = LoggingCrawlerEventConsumer(),
     private val userAgent: String? = null,
 ) {
-    fun execute(url: String) {
-        queue.add(URLQueueEntry(URLType.Link, url, url))
+    fun execute(
+        url: String,
+        type: URLType = URLType.Link,
+    ) {
+        queue.add(URLQueueEntry(type, url, url))
         executeQueue()
     }
 
@@ -59,6 +63,6 @@ class Crawler(
             .process(entry, connection, callback)
             .filter { !queue.contains(it.url) }
             .filter { !registry.contains(it.url) }
-            .filter { filter.test(it.type, it.url) }
+            .filter { filter.test(it) }
     }
 }

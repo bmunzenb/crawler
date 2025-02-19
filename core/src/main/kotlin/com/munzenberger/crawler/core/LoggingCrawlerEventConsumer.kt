@@ -18,7 +18,7 @@ class LoggingCrawlerEventConsumer(
                 locale,
                 "Starting crawler with %,d %s in queue...",
                 size,
-                "url".plural(size),
+                "URL".plural(size),
             )
         println(msg)
     }
@@ -110,7 +110,12 @@ class LoggingCrawlerEventConsumer(
     }
 
     override fun onError(error: Exception) {
+        println("Error: ${error.message}")
         error.printStackTrace(System.err)
+    }
+
+    override fun onCrawlerEvent(event: CrawlerEvent) {
+        println(event.toString())
     }
 }
 

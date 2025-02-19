@@ -8,14 +8,14 @@ The library includes basic processors for parsing HTML pages for anchor and imag
 
 To use the crawler, follow these steps:
 
-1. Create a `URLProcessor` that defines what should happen for each URL crawled.
-2. Create a `URLFilter` that defines which URLs should be crawled.
-3. Create an instance of `Crawler` and call `execute(url)` on it.
+1. Create a `URLProcessor` that defines what should happen for each URL crawled
+2. Create a `Predicate<URLQueueEntry>` that filters for which URLs should be crawled
+3. Create an instance of `Crawler` and call `execute(url)` on it
 
 ### Step 1: Create a `URLProcessor`
 
-The `URLProcessor` defines the logic that should execute for every URL crawled. It accepts a URL as input and returns
-a collection of URLs that could be added to the crawler queue.
+The `URLProcessor` defines the logic that should execute for every URL crawled. It accepts a URL connection as input and
+returns a collection of URLs that could be added to the crawler queue.
 
 You can implement your own `URLProcessor`, or use one of the included ones:
 
@@ -39,17 +39,17 @@ val processor = DownloadImagesProcessor(
 )
 ```
 
-### Step 2: Create a `URLFilter`
+### Step 2: Create a `Predicate<URLQueueEntry>`
 
-The `URLFilter` is called on every URL the crawler encounters to determine whether it should be processed. An
-instance should inspect the incoming URL, and optionally its `URLType`, and return `true` if the URL is eligible for
-processing.
+The `Predicate<URLQueueEntry>` is called on every URL the crawler encounters to determine whether it should be
+processed. An instance should inspect the incoming URL, and optionally its `URLType`, and return `true` if the URL is
+eligible for processing.
 
 In this example, we create a filter that follows all links whose URLs start with `http://www.example.com/` and downloads
 all images whose URLs start with `http://images.example.com/`:
 
 ```kotlin
-val filter = URLFilter { type, url ->
+val filter = Predicate<URLQueueEntry> { (type, url, referer) ->
     when (type) {
         URLType.Link -> url.startsWith("http://www.example.com/")
         URLType.Image -> url.startsWith("http://images.example.com/")
@@ -61,8 +61,8 @@ val filter = URLFilter { type, url ->
 
 ### Step 3: Create the `Crawler` and call `execute(url)`
 
-Finally, create an instance of `Crawler` passing the `URLProcessor` and `URLFilter` into the constructor, and
-call the `execute(url)` function. The URL passed into `execute` should be the entry point for the crawler.
+Finally, create an instance of `Crawler` passing the `URLProcessor` and `Predicate<URLQueueEntry>` into the constructor,
+and call the `execute(url)` function. The URL passed into `execute` should be the entry point for the crawler.
 
 In this example, we start crawling at `http://www.example.com/index.html`, following every link and downloading
 every image encountered as long as the link or image URL starts with `http://www.example.com/`. The images are saved
@@ -70,11 +70,13 @@ to `/user/images`.
 
 ```kotlin
 val processor = DownloadImagesProcessor(
-    writerFactory = FileDownloadWriterFactory(targetDir = Path.of("/user/images"))
+    writerFactory = FileDownloadWriterFactory(
+        targetDir = Path.of("/user/images")
+    )
 )
 
-val filter = URLFilter { _, url ->
-    url.startsWith("http://www.example.com/")
+val filter = Predicate<URLQueueEntry> {
+    it.url.startsWith("http://www.example.com/")
 }
 
 Crawler(
@@ -85,7 +87,7 @@ Crawler(
 
 #### Custom User-Agent Header
 
-To manually specify the value to use in the `User-Agent` header, pass it into the `Crawler`'s `userAgent` parameter in
+To manually specify the value for the `User-Agent` header, pass it into the `Crawler`'s `userAgent` parameter in
 the constructor:
 
 ```kotlin
@@ -98,5 +100,14 @@ Crawler(
 
 ## Advanced Use
 
-This section will include information about additional included processors, and the `Crawler` optional constructor
-parameters for `URLQueue`, `ProcessedRegistry`, and `Consumer<CrawlerEvent>`.
+### Using a custom `URLQueue`
+
+This section will describe the function and customization of `URLQueue`.
+
+### Using a custom `ProcessedRegistry`
+
+This section will describe the function and customization of `ProcessedRegistry`.
+
+### Custom event handling
+
+This section will describe the `CrawlerEvent` interface and the `Consumer<CrawlerEvent>` passed into the `Crawler`.

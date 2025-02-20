@@ -6,7 +6,7 @@ interface CrawlerEventConsumer : Consumer<CrawlerEvent> {
     override fun accept(event: CrawlerEvent) {
         when (event) {
             is CrawlerEvent.StartQueue -> onStartQueue(event.size)
-            is CrawlerEvent.StartQueueEntry -> onStartQueueEntry(event.entry)
+            is CrawlerEvent.StartQueueEntry -> onStartQueueEntry(event.entry, event.queueSize)
             is CrawlerEvent.AddToQueue -> onAddToQueue(event.entries)
             is CrawlerEvent.StartDownload -> onStartDownload(event.url, event.target)
             is CrawlerEvent.EndDownload -> onEndDownload(event.bytes)
@@ -19,7 +19,10 @@ interface CrawlerEventConsumer : Consumer<CrawlerEvent> {
 
     fun onStartQueue(size: Int) {}
 
-    fun onStartQueueEntry(entry: URLQueueEntry) {}
+    fun onStartQueueEntry(
+        entry: URLQueueEntry,
+        queueSize: Int,
+    ) {}
 
     fun onAddToQueue(entries: Collection<URLQueueEntry>) {}
 

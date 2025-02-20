@@ -16,7 +16,7 @@ class LoggingCrawlerEventConsumer(
         val msg =
             String.format(
                 locale,
-                "Starting crawler with %,d %s in queue...",
+                "Starting crawler with %,d %s in queue",
                 size,
                 "URL".plural(size),
             )
@@ -28,7 +28,7 @@ class LoggingCrawlerEventConsumer(
         val msg =
             String.format(
                 locale,
-                "Processed %,d %s in %s.",
+                "Queue complete, processed %,d %s in %s.",
                 entryCount,
                 "URL".plural(entryCount),
                 elapsed.formatElapsed,
@@ -36,14 +36,18 @@ class LoggingCrawlerEventConsumer(
         println(msg)
     }
 
-    override fun onStartQueueEntry(entry: URLQueueEntry) {
+    override fun onStartQueueEntry(
+        entry: URLQueueEntry,
+        queueSize: Int,
+    ) {
         entryCount++
         entryStart = System.currentTimeMillis()
         val msg =
             String.format(
                 locale,
-                "[%,d] Processing %s %s...",
+                "[%,d/%,d] Processing %s %s ...",
                 entryCount,
+                queueSize,
                 entry.type,
                 entry.url,
             )
@@ -78,8 +82,7 @@ class LoggingCrawlerEventConsumer(
         val msg =
             String.format(
                 locale,
-                "Download: %s -> %s ... ",
-                url,
+                "Download to %s ... ",
                 target,
             )
         print(msg)

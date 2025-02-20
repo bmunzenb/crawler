@@ -7,6 +7,7 @@ interface CrawlerEvent {
 
     data class StartQueueEntry(
         val entry: URLQueueEntry,
+        val queueSize: Int,
     ) : CrawlerEvent
 
     data class AddToQueue(

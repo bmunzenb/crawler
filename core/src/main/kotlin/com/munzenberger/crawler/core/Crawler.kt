@@ -28,7 +28,7 @@ class Crawler(
 
         while (!queue.isEmpty) {
             val entry = queue.pop()
-            callback.accept(CrawlerEvent.StartQueueEntry(entry))
+            callback.accept(CrawlerEvent.StartQueueEntry(entry, queue.size))
             try {
                 val results = executeForEntry(entry)
                 if (results.isNotEmpty()) {
@@ -50,6 +50,7 @@ class Crawler(
         val connection =
             URI.create(entry.url).toURL().openConnection().apply {
                 userAgent?.run { setRequestProperty("User-Agent", this) }
+                setRequestProperty("Referer", entry.referer)
             }
 
         if (connection is HttpURLConnection) {

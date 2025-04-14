@@ -2,7 +2,7 @@
 kotlin = "2.1.10"
 okio = "3.10.2"
 junit = "4.13.2"
-mockk = "1.13.17"
+mockk = "1.14.0"
 detekt = "1.23.8"
 ktlint-plugin = "12.1.2"
 jsoup = "1.19.1"

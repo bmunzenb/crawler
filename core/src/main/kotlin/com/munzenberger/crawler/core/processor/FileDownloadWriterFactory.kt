@@ -1,32 +1,15 @@
 package com.munzenberger.crawler.core.processor
 
-import java.net.URI
+import com.munzenberger.crawler.core.URLQueueEntry
 import java.nio.file.Path
 
 class FileDownloadWriterFactory(
     private val targetDir: Path,
-    private val withUrlPath: Boolean = false,
+    private val pathSpec: PathSpec = FilenamePathSpec,
     private val bufferSize: Int = FileDownloadWriter.DEFAULT_BUFFER_SIZE,
 ) : DownloadWriterFactory {
-    override fun newWriter(
-        url: String,
-        referer: String,
-    ): DownloadWriter {
-        val source = URI.create(url).toURL()
-
-        val parts =
-            source.path
-                .split("/")
-                .filter { it.isNotEmpty() }
-
-        val path =
-            if (withUrlPath) {
-                val root = targetDir.resolve(source.host)
-                parts.fold(root) { acc, part -> acc.resolve(part) }
-            } else {
-                targetDir.resolve(parts.last())
-            }
-
+    override fun newWriter(entry: URLQueueEntry): DownloadWriter {
+        val path = pathSpec.pathFor(entry, targetDir)
         return FileDownloadWriter(path, bufferSize)
     }
 }

@@ -13,7 +13,7 @@ class DownloadProcessor(
         connection: URLConnection,
         callback: Consumer<CrawlerEvent>,
     ): Collection<URLQueueEntry> {
-        val writer = writerFactory.newWriter(entry.url, entry.referer)
+        val writer = writerFactory.newWriter(entry)
 
         callback.accept(CrawlerEvent.StartDownload(entry.url, writer.name))
         val bytes = writer.write(connection.getInputStream())

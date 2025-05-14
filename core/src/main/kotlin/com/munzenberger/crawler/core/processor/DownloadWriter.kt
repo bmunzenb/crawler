@@ -1,5 +1,6 @@
 package com.munzenberger.crawler.core.processor
 
+import com.munzenberger.crawler.core.URLQueueEntry
 import java.io.InputStream
 
 interface DownloadWriter {
@@ -9,8 +10,5 @@ interface DownloadWriter {
 }
 
 fun interface DownloadWriterFactory {
-    fun newWriter(
-        url: String,
-        referer: String,
-    ): DownloadWriter
+    fun newWriter(entry: URLQueueEntry): DownloadWriter
 }

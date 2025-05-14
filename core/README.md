@@ -33,8 +33,7 @@ directory:
 ```kotlin
 val processor = DownloadImagesProcessor(
     writerFactory = FileDownloadWriterFactory(
-        targetDir = Path.of("/user/images"),
-        withUrlPath = true // when true, creates a directory structure that matches the URL path
+        targetDir = Path.of("/user/images")
     )
 )
 ```

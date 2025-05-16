@@ -4,6 +4,7 @@ import java.util.Locale
 
 class LoggingCrawlerEventConsumer(
     private val locale: Locale = Locale.getDefault(),
+    private val logger: Logger = ConsoleLogger,
 ) : CrawlerEventConsumer {
     // statistics
     private var queueStart: Long = 0
@@ -20,7 +21,7 @@ class LoggingCrawlerEventConsumer(
                 size,
                 "URL".plural(size),
             )
-        println(msg)
+        logger.println(msg)
     }
 
     override fun onEndQueue() {
@@ -33,7 +34,7 @@ class LoggingCrawlerEventConsumer(
                 "URL".plural(entryCount),
                 elapsed.formatElapsed,
             )
-        println(msg)
+        logger.println(msg)
     }
 
     override fun onStartQueueEntry(
@@ -51,7 +52,7 @@ class LoggingCrawlerEventConsumer(
                 entry.type,
                 entry.url,
             )
-        println(msg)
+        logger.println(msg)
     }
 
     override fun onAddToQueue(entries: Collection<URLQueueEntry>) {
@@ -71,7 +72,7 @@ class LoggingCrawlerEventConsumer(
                     )
                 },
             )
-        println(msg)
+        logger.println(msg)
     }
 
     override fun onStartDownload(
@@ -85,7 +86,7 @@ class LoggingCrawlerEventConsumer(
                 "Download to %s ... ",
                 target,
             )
-        print(msg)
+        logger.print(msg)
     }
 
     override fun onEndDownload(bytes: Long) {
@@ -97,7 +98,7 @@ class LoggingCrawlerEventConsumer(
                 bytes.formatBytes(locale),
                 elapsed.formatElapsed,
             )
-        println(msg)
+        logger.println(msg)
     }
 
     override fun onEndQueueEntry(entry: URLQueueEntry) {
@@ -109,16 +110,16 @@ class LoggingCrawlerEventConsumer(
                 entry.type,
                 elapsed.formatElapsed,
             )
-        println(msg)
+        logger.println(msg)
     }
 
     override fun onError(error: Exception) {
         println("Error: ${error.message}")
-        error.printStackTrace(System.err)
+        logger.printStackTrace(error)
     }
 
     override fun onCrawlerEvent(event: CrawlerEvent) {
-        println(event.toString())
+        logger.println(event.toString())
     }
 }
 

@@ -57,8 +57,8 @@ class Crawler(
 
         return processor
             .process(entry, connection, callback)
-            .filter { !queue.contains(it.url) }
-            .filter { !registry.contains(it.url) }
+            .filterNot { queue.contains(it.url) }
+            .filterNot { registry.contains(it.url) }
             .filter { filter.test(it) }
     }
 }
